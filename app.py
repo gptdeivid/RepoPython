@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pymysql
 from db_config import db
 
@@ -23,11 +23,13 @@ def do_login():
 
         if user:
             session['username'] = user[0]
-            return jsonify({'success': True, 'redirect': url_for('welcome')})
+            return redirect(url_for('welcome'))
         else:
-            return jsonify({'success': False, 'message': 'Credenciales inválidas'})
+            flash("Error de credenciales")
+            return redirect(url_for('login'))
     except Exception as e:
-        return jsonify({'success': False, 'message': 'Error en el servidor'})
+        flash("Error de credenciales")
+        return redirect(url_for('login'))
 
 @app.route('/welcome')
 def welcome():
