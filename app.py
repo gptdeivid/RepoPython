@@ -1,11 +1,24 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import pymysql
-from db_config import db
-
 import os
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_segura'
+
+# Usuarios simples en memoria (sin base de datos)
+USERS = {
+    'admin@test.com': {
+        'password': 'admin123',
+        'name': 'Administrador'
+    },
+    'user@test.com': {
+        'password': 'user123',
+        'name': 'Usuario'
+    },
+    'demo@demo.com': {
+        'password': 'demo',
+        'name': 'Demo User'
+    }
+}
 
 # Cache busting
 @app.context_processor
@@ -31,21 +44,14 @@ def do_login():
     email = request.form['email']
     password = request.form['password']
 
-    try:
-        cursor = db.cursor()
-        sql = "SELECT name FROM users WHERE email=%s AND password=%s"
-        cursor.execute(sql, (email, password))
-        user = cursor.fetchone()
-        cursor.close()
-
-        if user:
-            session['username'] = user[0]
-            return redirect(url_for('welcome'))
-        else:
-            flash("Error de credenciales")
-            return redirect(url_for('login'))
-    except Exception as e:
-        flash("Error de credenciales")
+    # Validar credenciales con datos en memoria
+    if email in USERS and USERS[email]['password'] == password:
+        session['username'] = USERS[email]['name']
+        session['email'] = email
+        flash(f"¡Bienvenido {USERS[email]['name']}!")
+        return redirect(url_for('welcome'))
+    else:
+        flash("Credenciales incorrectas. Prueba con: admin@test.com/admin123 o user@test.com/user123")
         return redirect(url_for('login'))
 
 @app.route('/welcome')
@@ -56,10 +62,12 @@ def welcome():
 
 @app.route('/logout')
 def logout():
+    username = session.get('username', 'Usuario')
     session.clear()
+    flash(f"¡Hasta luego {username}!")
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
 

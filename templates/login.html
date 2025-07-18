@@ -22,12 +22,12 @@
             <h3>Bienvenido</h3>
             <form id="login-form" method="POST" action="{{ url_for('do_login') }}">
                 <div class="input-group">
-                    <i class="fas fa-envelope"></i>
                     <input type="email" name="email" placeholder="Correo electrónico" required>
+                    <i class="fas fa-envelope animated-icon"></i>
                 </div>
                 <div class="input-group">
-                    <i class="fas fa-lock"></i>
                     <input type="password" name="password" placeholder="Contraseña" required>
+                    <i class="fas fa-lock animated-icon"></i>
                 </div>
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
@@ -38,20 +38,20 @@
         <div class="spinner"></div>
     </div>
 
-    <div class="toast-notification" id="toast"></div>
+    <div class="toast-notification" id="toast">
+        <i class="fas fa-bell"></i><span id="toast-msg"></span>
+    </div>
 
     <script>
         // Theme switcher
         const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
         const currentTheme = localStorage.getItem('theme');
-
         if (currentTheme) {
             document.body.classList.add(currentTheme);
             if (currentTheme === 'dark-mode') {
                 toggleSwitch.checked = true;
             }
         }
-
         function switchTheme(e) {
             if (e.target.checked) {
                 document.body.classList.add('dark-mode');
@@ -61,22 +61,21 @@
                 localStorage.setItem('theme', 'light');
             }
         }
-
         toggleSwitch.addEventListener('change', switchTheme, false);
 
         // Form submission spinner
         const loginForm = document.getElementById('login-form');
         const spinner = document.getElementById('spinner');
-
         loginForm.addEventListener('submit', function() {
             spinner.style.display = 'flex';
         });
 
         // Toast notifications
         const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                toast.textContent = "{{ messages[0] }}";
+                toastMsg.textContent = "{{ messages[0] }}";
                 toast.classList.add('show');
                 setTimeout(() => {
                     toast.classList.remove('show');
